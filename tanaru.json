@@ -1,0 +1,7 @@
+{
+    "version": "1.0.0",
+    "name": "Chromatic Collapse",
+    "description": "隣り合う同じ色のセルをドラッグでつなげよう",
+    "tools": ["Claude Code", "Opus"],
+    "tags": ["ゲーム"]
+}
