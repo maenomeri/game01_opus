@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chromatic Collapse - クロマティック・コラプス</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: #0a0a1a;
+  color: #fff;
+  font-family: 'Segoe UI', 'Yu Gothic UI', sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+#app {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+#header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  max-width: 480px;
+  padding: 0 4px;
+}
+
+#header h1 {
+  font-size: 1.2rem;
+  background: linear-gradient(90deg, #ff6b6b, #ffd93d, #6bcb77, #4d96ff, #c77dff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.stat {
+  text-align: center;
+  font-size: 0.8rem;
+  color: #aaa;
+}
+
+.stat-value {
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #fff;
+}
+
+#board-container {
+  position: relative;
+  background: #12122a;
+  border-radius: 12px;
+  border: 2px solid #2a2a4a;
+  padding: 8px;
+  box-shadow: 0 0 30px rgba(100, 100, 255, 0.1);
+}
+
+canvas#gameCanvas {
+  display: block;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+#danger-bar-container {
+  width: 100%;
+  max-width: 480px;
+  height: 10px;
+  background: #1a1a3a;
+  border-radius: 5px;
+  overflow: hidden;
+  border: 1px solid #2a2a4a;
+}
+
+#danger-bar {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #4d96ff, #ffd93d, #ff6b6b);
+  transition: width 0.3s ease;
+  border-radius: 5px;
+}
+
+#info-row {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 480px;
+  font-size: 0.75rem;
+  color: #888;
+  padding: 0 4px;
+}
+
+#chain-display {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 3rem;
+  font-weight: bold;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s, transform 0.3s;
+  text-shadow: 0 0 20px currentColor;
+  z-index: 100;
+}
+
+#selection-count {
+  position: fixed;
+  pointer-events: none;
+  font-size: 1.5rem;
+  font-weight: bold;
+  opacity: 0;
+  text-shadow: 0 0 10px currentColor;
+  z-index: 50;
+}
+
+/* Modal overlay */
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.85);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 200;
+  opacity: 0;
+  transition: opacity 0.4s;
+}
+
+.modal-overlay.show { opacity: 1; }
+
+.modal {
+  background: #1a1a3a;
+  border: 2px solid #3a3a6a;
+  border-radius: 16px;
+  padding: 40px;
+  text-align: center;
+  max-width: 400px;
+  width: 90%;
+  transform: scale(0.8);
+  transition: transform 0.4s;
+}
+
+.modal-overlay.show .modal { transform: scale(1); }
+
+.modal h2 {
+  font-size: 2rem;
+  margin-bottom: 10px;
+}
+
+.modal p {
+  color: #aaa;
+  margin-bottom: 20px;
+  line-height: 1.6;
+}
+
+.modal .final-score {
+  font-size: 2.5rem;
+  font-weight: bold;
+  background: linear-gradient(90deg, #ffd93d, #ff6b6b);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.btn {
+  display: inline-block;
+  padding: 12px 32px;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  margin: 6px;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.btn:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+.btn:active { transform: translateY(0); }
+
+.btn-primary {
+  background: linear-gradient(135deg, #4d96ff, #6bcb77);
+  color: #fff;
+}
+
+.btn-danger {
+  background: linear-gradient(135deg, #ff6b6b, #ffd93d);
+  color: #1a1a1a;
+}
+
+.btn-secondary {
+  background: #2a2a4a;
+  color: #fff;
+  border: 1px solid #3a3a6a;
+}
+
+/* Title screen */
+#title-screen {
+  text-align: center;
+}
+
+#title-screen h1 {
+  font-size: 2.5rem;
+  margin-bottom: 8px;
+  background: linear-gradient(90deg, #ff6b6b, #ffd93d, #6bcb77, #4d96ff, #c77dff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+#title-screen .subtitle {
+  color: #888;
+  font-size: 1rem;
+  margin-bottom: 30px;
+}
+
+#title-screen .how-to {
+  text-align: left;
+  background: #12122a;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 24px;
+  color: #ccc;
+  font-size: 0.85rem;
+  line-height: 1.8;
+  border: 1px solid #2a2a4a;
+}
+
+#title-screen .how-to h3 {
+  color: #fff;
+  margin-bottom: 8px;
+  font-size: 1rem;
+}
+
+.high-score-display {
+  color: #ffd93d;
+  font-size: 0.9rem;
+  margin-bottom: 16px;
+}
+</style>
+</head>
+<body>
+
+<div id="app"></div>
+
+<div id="chain-display"></div>
+<div id="selection-count"></div>
+
+<script src="game.js"></script>
+</body>
+</html>
