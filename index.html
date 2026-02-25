@@ -15,14 +15,18 @@ body {
   justify-content: center;
   align-items: center;
   min-height: 100vh;
+  min-height: 100dvh;
   overflow: hidden;
+  padding: 8px;
 }
 
 #app {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
+  width: 100%;
+  max-width: 500px;
 }
 
 #header {
@@ -30,26 +34,33 @@ body {
   justify-content: space-between;
   align-items: center;
   width: 100%;
-  max-width: 480px;
   padding: 0 4px;
+  gap: 8px;
 }
 
 #header h1 {
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   background: linear-gradient(90deg, #ff6b6b, #ffd93d, #6bcb77, #4d96ff, #c77dff);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  white-space: nowrap;
+  flex-shrink: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .stat {
   text-align: center;
-  font-size: 0.8rem;
+  font-size: 0.7rem;
   color: #aaa;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .stat-value {
-  font-size: 1.1rem;
+  font-size: 1rem;
   font-weight: bold;
   color: #fff;
 }
@@ -61,17 +72,19 @@ body {
   border: 2px solid #2a2a4a;
   padding: 8px;
   box-shadow: 0 0 30px rgba(100, 100, 255, 0.1);
+  width: 100%;
 }
 
 canvas#gameCanvas {
   display: block;
   border-radius: 8px;
   cursor: pointer;
+  width: 100%;
+  height: auto;
 }
 
 #danger-bar-container {
   width: 100%;
-  max-width: 480px;
   height: 10px;
   background: #1a1a3a;
   border-radius: 5px;
@@ -90,8 +103,8 @@ canvas#gameCanvas {
 #info-row {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   width: 100%;
-  max-width: 480px;
   font-size: 0.75rem;
   color: #888;
   padding: 0 4px;
@@ -132,6 +145,7 @@ canvas#gameCanvas {
   z-index: 200;
   opacity: 0;
   transition: opacity 0.4s;
+  padding: 16px;
 }
 
 .modal-overlay.show { opacity: 1; }
@@ -140,10 +154,10 @@ canvas#gameCanvas {
   background: #1a1a3a;
   border: 2px solid #3a3a6a;
   border-radius: 16px;
-  padding: 40px;
+  padding: 32px 24px;
   text-align: center;
   max-width: 400px;
-  width: 90%;
+  width: 100%;
   transform: scale(0.8);
   transition: transform 0.4s;
 }
@@ -151,7 +165,7 @@ canvas#gameCanvas {
 .modal-overlay.show .modal { transform: scale(1); }
 
 .modal h2 {
-  font-size: 2rem;
+  font-size: 1.8rem;
   margin-bottom: 10px;
 }
 
@@ -172,7 +186,7 @@ canvas#gameCanvas {
 
 .btn {
   display: inline-block;
-  padding: 12px 32px;
+  padding: 12px 28px;
   border: none;
   border-radius: 8px;
   font-size: 1rem;
@@ -180,6 +194,8 @@ canvas#gameCanvas {
   cursor: pointer;
   margin: 6px;
   transition: transform 0.15s, box-shadow 0.15s;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 
 .btn:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
@@ -204,10 +220,12 @@ canvas#gameCanvas {
 /* Title screen */
 #title-screen {
   text-align: center;
+  width: 100%;
+  padding: 0 8px;
 }
 
 #title-screen h1 {
-  font-size: 2.5rem;
+  font-size: 2.2rem;
   margin-bottom: 8px;
   background: linear-gradient(90deg, #ff6b6b, #ffd93d, #6bcb77, #4d96ff, #c77dff);
   -webkit-background-clip: text;
@@ -218,15 +236,15 @@ canvas#gameCanvas {
 #title-screen .subtitle {
   color: #888;
   font-size: 1rem;
-  margin-bottom: 30px;
+  margin-bottom: 24px;
 }
 
 #title-screen .how-to {
   text-align: left;
   background: #12122a;
   border-radius: 12px;
-  padding: 20px;
-  margin-bottom: 24px;
+  padding: 16px;
+  margin-bottom: 20px;
   color: #ccc;
   font-size: 0.85rem;
   line-height: 1.8;
@@ -243,6 +261,46 @@ canvas#gameCanvas {
   color: #ffd93d;
   font-size: 0.9rem;
   margin-bottom: 16px;
+}
+
+/* ---- レスポンシブ対応 ---- */
+@media (max-width: 480px) {
+  body { padding: 6px; }
+
+  #app { gap: 6px; }
+
+  #header h1 { font-size: 0.9rem; }
+  .stat { font-size: 0.65rem; }
+  .stat-value { font-size: 0.85rem; }
+
+  #board-container { padding: 4px; border-radius: 8px; }
+
+  #title-screen h1 { font-size: 1.7rem; }
+  #title-screen .subtitle { font-size: 0.85rem; margin-bottom: 16px; }
+  #title-screen .how-to { padding: 12px; font-size: 0.8rem; }
+
+  .modal { padding: 24px 16px; }
+  .modal h2 { font-size: 1.5rem; }
+  .modal .final-score { font-size: 2rem; }
+  .btn { padding: 10px 22px; font-size: 0.9rem; }
+
+  #chain-display { font-size: 2.2rem; }
+}
+
+@media (max-width: 360px) {
+  #header h1 { font-size: 0.8rem; }
+  .stat { font-size: 0.6rem; }
+  .stat-value { font-size: 0.75rem; }
+  #title-screen h1 { font-size: 1.4rem; }
+}
+
+/* 横長画面(スマホ横向き)で高さを抑える */
+@media (max-height: 600px) {
+  body { align-items: flex-start; padding-top: 4px; }
+  #app { gap: 4px; }
+  #danger-bar-container { height: 6px; }
+  .modal { padding: 20px 16px; }
+  .modal h2 { font-size: 1.3rem; }
 }
 </style>
 </head>
