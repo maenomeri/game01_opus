@@ -49,6 +49,7 @@
   let mouseDown = false;
   let lastCell = null;
   let highScore = 0;
+  let riseDragging = false;
 
   // ---------- Storage ----------
   function loadData() {
@@ -424,12 +425,17 @@
     const targetEl = document.getElementById("target-val");
     if (targetEl) targetEl.textContent = score + " / " + stg.target;
 
-    // 残り時間バー
+    // 残り時間バー & サム位置
     if (state === "playing") {
       const elapsed = performance.now() - lastRise;
       const pct = Math.min(100, (elapsed / stg.riseInterval) * 100);
       const riseEl = document.getElementById("rise-bar");
-      if (riseEl) riseEl.style.width = pct + "%";
+      if (riseEl) {
+        riseEl.style.width = pct + "%";
+        riseEl.style.transition = riseDragging ? "none" : "width 0.2s";
+      }
+      const thumbEl = document.getElementById("rise-thumb");
+      if (thumbEl) thumbEl.style.left = pct + "%";
     }
   }
 
@@ -488,8 +494,9 @@
       </div>
       <div id="info-row">
         <span>次のせり上がり</span>
-        <div style="flex:1;margin:0 10px;height:6px;background:#1a1a3a;border-radius:3px;position:relative;top:4px;overflow:hidden;">
-          <div id="rise-bar" style="height:100%;width:0%;background:linear-gradient(90deg,#4d96ff,#ff6b6b);border-radius:3px;transition:width 0.2s;"></div>
+        <div id="rise-bar-track">
+          <div id="rise-bar"></div>
+          <div id="rise-thumb"></div>
         </div>
       </div>
     `;
@@ -504,6 +511,18 @@
     canvas.addEventListener("touchstart", onTouchStart, { passive: false });
     canvas.addEventListener("touchmove", onTouchMove, { passive: false });
     window.addEventListener("touchend", onTouchEnd);
+
+    // せり上がりバーのドラッグ
+    const riseTrack = document.getElementById("rise-bar-track");
+    const riseThumb = document.getElementById("rise-thumb");
+    riseThumb.addEventListener("mousedown", onRiseDragStart);
+    riseTrack.addEventListener("mousedown", onRiseDragStart);
+    riseThumb.addEventListener("touchstart", onRiseDragStart, { passive: false });
+    riseTrack.addEventListener("touchstart", onRiseDragStart, { passive: false });
+    window.addEventListener("mousemove", onRiseDragMove);
+    window.addEventListener("mouseup", onRiseDragEnd);
+    window.addEventListener("touchmove", onRiseDragMove, { passive: false });
+    window.addEventListener("touchend", onRiseDragEnd);
   }
 
   function showStageClearModal() {
@@ -627,6 +646,48 @@
   }
 
   function onTouchEnd(e) { endSelect(); }
+
+  // ---------- Rise Bar Drag ----------
+  function onRiseDragStart(e) {
+    if (state !== "playing" || animating) return;
+    e.preventDefault();
+    e.stopPropagation();
+    riseDragging = true;
+    const thumb = document.getElementById("rise-thumb");
+    if (thumb) thumb.classList.add("dragging");
+    applyRiseDrag(e);
+  }
+
+  function applyRiseDrag(e) {
+    const track = document.getElementById("rise-bar-track");
+    if (!track) return;
+    const rect = track.getBoundingClientRect();
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    let pct = (clientX - rect.left) / rect.width;
+    pct = Math.max(0, Math.min(1, pct));
+
+    const stg = STAGES[stage];
+    const currentElapsed = performance.now() - lastRise;
+    const currentPct = currentElapsed / stg.riseInterval;
+
+    // 現在の自動進行より先にのみドラッグ可能
+    if (pct > currentPct) {
+      lastRise = performance.now() - pct * stg.riseInterval;
+    }
+  }
+
+  function onRiseDragMove(e) {
+    if (!riseDragging) return;
+    e.preventDefault();
+    applyRiseDrag(e);
+  }
+
+  function onRiseDragEnd() {
+    if (!riseDragging) return;
+    riseDragging = false;
+    const thumb = document.getElementById("rise-thumb");
+    if (thumb) thumb.classList.remove("dragging");
+  }
 
   // ---------- Game Loop ----------
   function gameLoop(now) {

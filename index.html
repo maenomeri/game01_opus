@@ -107,7 +107,49 @@ canvas#gameCanvas {
   width: 100%;
   font-size: 0.75rem;
   color: #888;
-  padding: 0 4px;
+  padding: 8px 4px;
+}
+
+#rise-bar-track {
+  flex: 1;
+  margin: 0 10px;
+  height: 6px;
+  background: #1a1a3a;
+  border-radius: 3px;
+  position: relative;
+  cursor: pointer;
+}
+
+#rise-bar {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #4d96ff, #ff6b6b);
+  border-radius: 3px;
+  transition: width 0.2s;
+  pointer-events: none;
+}
+
+#rise-thumb {
+  position: absolute;
+  top: 50%;
+  left: 0%;
+  width: 20px;
+  height: 20px;
+  background: radial-gradient(circle at 40% 35%, #fff, #a0c0ff);
+  border: 2px solid #4d96ff;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  cursor: grab;
+  box-shadow: 0 0 8px rgba(77, 150, 255, 0.5);
+  z-index: 2;
+  touch-action: none;
+  transition: box-shadow 0.15s, transform 0.15s;
+}
+
+#rise-thumb.dragging {
+  cursor: grabbing;
+  box-shadow: 0 0 14px rgba(77, 150, 255, 0.9);
+  transform: translate(-50%, -50%) scale(1.2);
 }
 
 #chain-display {
@@ -285,6 +327,7 @@ canvas#gameCanvas {
   .btn { padding: 10px 22px; font-size: 0.9rem; }
 
   #chain-display { font-size: 2.2rem; }
+  #rise-thumb { width: 18px; height: 18px; }
 }
 
 @media (max-width: 360px) {
