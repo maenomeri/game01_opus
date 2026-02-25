@@ -261,6 +261,12 @@
         return;
       }
       addBottomRow(stg.colors);
+      // ドラッグ中にせり上がった場合、1段で即ドラッグ解除
+      if (riseDragging) {
+        riseDragging = false;
+        const thumb = document.getElementById("rise-thumb");
+        if (thumb) thumb.classList.remove("dragging");
+      }
     }
   }
 
@@ -512,13 +518,10 @@
     canvas.addEventListener("touchmove", onTouchMove, { passive: false });
     window.addEventListener("touchend", onTouchEnd);
 
-    // せり上がりバーのドラッグ
-    const riseTrack = document.getElementById("rise-bar-track");
+    // せり上がりバーのドラッグ（サムのみ開始可能）
     const riseThumb = document.getElementById("rise-thumb");
     riseThumb.addEventListener("mousedown", onRiseDragStart);
-    riseTrack.addEventListener("mousedown", onRiseDragStart);
     riseThumb.addEventListener("touchstart", onRiseDragStart, { passive: false });
-    riseTrack.addEventListener("touchstart", onRiseDragStart, { passive: false });
     window.addEventListener("mousemove", onRiseDragMove);
     window.addEventListener("mouseup", onRiseDragEnd);
     window.addEventListener("touchmove", onRiseDragMove, { passive: false });
